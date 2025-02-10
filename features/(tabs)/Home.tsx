@@ -1,16 +1,17 @@
 import { View, Text, Button } from "react-native";
-import { useRouter } from "expo-router";
+import { useNavigation } from "@react-navigation/native";
 
 export default function HomeScreen() {
-  const router = useRouter();
+  const navigation = useNavigation();
 
   const goToSettings = () => {
-    router.push("/(tabs)/Settings");
+    navigation.navigate("Settings");
   };
 
   return (
     <View>
       <Text>Home</Text>
+      <Button title="Go to Settings" onPress={goToSettings} />
     </View>
   );
 }

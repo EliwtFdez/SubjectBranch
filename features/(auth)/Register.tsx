@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import { View, KeyboardAvoidingView, Platform } from "react-native";
 import { TextInput, Button, Text } from "react-native-paper";
-import { useRouter } from "expo-router"; // ✅ Cambiamos a Expo Router
+import { useNavigation } from "@react-navigation/native"; // ✅ Cambiamos a React Navigation
 import stylesAuth from "../../utils/styles/stylesAuth";
 
 const RegisterScreen = () => {
-  const router = useRouter(); // ✅ Usamos Expo Router
+  const navigation = useNavigation(); // ✅ Usamos React Navigation
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -49,8 +49,8 @@ const RegisterScreen = () => {
         Register
       </Button>
 
-      {/* ✅ Cambiado navigation.goBack() a router.back() */}
-      <Text style={stylesAuth.link} onPress={() => router.back()}>
+      {/* ✅ Cambiado navigation.goBack() en lugar de router.back() */}
+      <Text style={stylesAuth.link} onPress={() => navigation.goBack()}>
         Already have an account? Login
       </Text>
     </KeyboardAvoidingView>

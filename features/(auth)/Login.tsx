@@ -1,23 +1,18 @@
 import React, { useState } from "react";
-import {
-  KeyboardAvoidingView,
-  Platform,
-  ActivityIndicator,
-  View
-} from "react-native";
+import { KeyboardAvoidingView,Platform,ActivityIndicator,View} from "react-native";
 import { TextInput, Button, Text, HelperText } from "react-native-paper";
-import { useRouter } from "expo-router";
+import { useNavigation } from "@react-navigation/native";
 import stylesAuth from "../../utils/styles/stylesAuth";
 
 const LoginScreen = () => {
-  const router = useRouter(); // 1) Usamos Expo Router
+  const navigation = useNavigation(); // Usamos React Navigation
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
   // Helper function for email validation only
-  const isEmailValid = (email: string) => {
+  const isEmailValid = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   };
@@ -51,8 +46,7 @@ const LoginScreen = () => {
       console.log("Email:", email);
       console.log("Password:", password);
 
-      // 2) Si todo OK, navegamos a Home usando Expo Router
-      router.replace("/(tabs)/Home");
+      navigation.replace("Home");
       
     } catch (err) {
       setError("An error occurred during login");
@@ -116,7 +110,7 @@ const LoginScreen = () => {
       {/* Navigate to Register */}
       <Text
         style={stylesAuth.link}
-        onPress={() => !isLoading && router.push("/(auth)/Register")}
+        onPress={() => !isLoading && navigation.navigate("Register")}
       >
         Don&apos;t have an account? Register
       </Text>
