@@ -1,18 +1,39 @@
 import React, { useState } from "react";
-import { KeyboardAvoidingView,Platform,ActivityIndicator,View} from "react-native";
-import { TextInput, Button, Text, HelperText } from "react-native-paper";
+import { 
+  KeyboardAvoidingView, 
+  Platform, 
+  ActivityIndicator, 
+  View 
+} from "react-native";
+import { 
+  TextInput, 
+  Button, 
+  Text, 
+  HelperText 
+} from "react-native-paper";
 import { useNavigation } from "@react-navigation/native";
+import { StackNavigationProp } from "@react-navigation/stack"; // 🔥 Importación corregida
 import stylesAuth from "../../utils/styles/stylesAuth";
 
+// Definir el tipo de las rutas en el StackNavigator
+type AuthStackParamList = {
+  Login: undefined;
+  Register: undefined;
+  Home: undefined;
+};
+
+// Tipar correctamente la navegación
+type NavigationProps = StackNavigationProp<AuthStackParamList, "Login">;
+
 const LoginScreen = () => {
-  const navigation = useNavigation(); // Usamos React Navigation
+  const navigation = useNavigation<NavigationProps>(); // Usamos React Navigation con tipado
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // Helper function for email validation only
-  const isEmailValid = (email) => {
+  // Helper function para validar emails
+  const isEmailValid = (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   };
@@ -21,7 +42,7 @@ const LoginScreen = () => {
     try {
       setError("");
 
-      // Basic validation checks
+      // Validaciones básicas
       if (!email || !password) {
         setError("Please fill in all fields");
         return;
@@ -37,15 +58,16 @@ const LoginScreen = () => {
         return;
       }
 
-      // Set loading to true
+      // Activar el estado de carga
       setIsLoading(true);
 
-      // Simulated "API call" (1-second delay)
+      // Simulación de "API call" con retraso de 1 segundo
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
       console.log("Email:", email);
       console.log("Password:", password);
 
+      // Navegar a la pantalla Home después del login
       navigation.replace("Home");
       
     } catch (err) {
@@ -107,7 +129,7 @@ const LoginScreen = () => {
         {isLoading ? <ActivityIndicator color="white" /> : "Login"}
       </Button>
 
-      {/* Navigate to Register */}
+      {/* Navegar a Register */}
       <Text
         style={stylesAuth.link}
         onPress={() => !isLoading && navigation.navigate("Register")}
