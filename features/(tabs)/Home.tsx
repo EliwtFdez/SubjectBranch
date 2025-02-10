@@ -1,121 +1,16 @@
-import React, { useState } from "react";
-import { View, KeyboardAvoidingView, Platform, ActivityIndicator } from "react-native";
-import { TextInput, Button, Text, HelperText } from "react-native-paper";
-import { useNavigation } from "@react-navigation/native";
-import stylesAuth from "../../utils/styles/stylesAuth";
+import { View, Text, Button } from "react-native";
+import { useRouter } from "expo-router";
 
-const LoginScreen = () => {
-  const navigation = useNavigation();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
+export default function HomeScreen() {
+  const router = useRouter();
 
-  const validateEmail = (email: string) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  };
-
-  const handleLogin = async () => {
-    try {
-      setError("");
-
-      // Si el email está vacío, navegar a Home
-      if (email === "") {
-        navigation.replace("Home");
-        return;
-      }
-
-      // Validaciones básicas
-      if (!email || !password) {
-        setError("Please fill in all fields");
-        return;
-      }
-
-      if (!validateEmail(email)) {
-        setError("Please enter a valid email address");
-        return;
-      }
-
-      if (password.length < 6) {
-        setError("Password must be at least 6 characters long");
-        return;
-      }
-
-      setIsLoading(true);
-      
-      // Simulación de una llamada a API
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      console.log("Email:", email);
-      console.log("Password:", password);
-      
-      // Redirigir a Home después del login exitoso
-      navigation.replace("Home");
-
-    } catch (err) {
-      setError("An error occurred during login");
-      console.error(err);
-    } finally {
-      setIsLoading(false);
-    }
+  const goToSettings = () => {
+    router.push("/(tabs)/Settings");
   };
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      style={stylesAuth.container}
-    >
-      <Text style={stylesAuth.title}>Welcome Back</Text>
-      
-      <TextInput
-        label="Email"
-        value={email}
-        onChangeText={(text) => {
-          setEmail(text);
-          setError("");
-        }}
-        style={stylesAuth.input}
-        keyboardType="email-address"
-        autoCapitalize="none"
-        disabled={isLoading}
-      />
-      
-      <TextInput
-        label="Password"
-        value={password}
-        onChangeText={(text) => {
-          setPassword(text);
-          setError("");
-        }}
-        secureTextEntry
-        style={stylesAuth.input}
-        disabled={isLoading}
-      />
-      
-      {error ? (
-        <HelperText type="error" visible={!!error}>
-          {error}
-        </HelperText>
-      ) : null}
-
-      <Button
-        mode="contained"
-        onPress={handleLogin}
-        style={stylesAuth.button}
-        disabled={isLoading}
-      >
-        {isLoading ? <ActivityIndicator color="white" /> : "Login"}
-      </Button>
-
-      <Text 
-        style={stylesAuth.link} 
-        onPress={() => !isLoading && navigation.navigate("Register")}
-      >
-        Don't have an account? Register
-      </Text>
-    </KeyboardAvoidingView>
+    <View>
+      <Text>Home</Text>
+    </View>
   );
-};
-
-export default LoginScreen;
+}

@@ -1,35 +1,38 @@
 import React, { useState } from "react";
-import { View, KeyboardAvoidingView, Platform, ActivityIndicator } from "react-native";
+import {
+  KeyboardAvoidingView,
+  Platform,
+  ActivityIndicator,
+  View
+} from "react-native";
 import { TextInput, Button, Text, HelperText } from "react-native-paper";
-import { useNavigation } from "@react-navigation/native";
+import { useRouter } from "expo-router";
 import stylesAuth from "../../utils/styles/stylesAuth";
 
 const LoginScreen = () => {
-  const navigation = useNavigation();
+  const router = useRouter(); // 1) Usamos Expo Router
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const validateEmail = (email: string) => {
+  // Helper function for email validation only
+  const isEmailValid = (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
-    if(email == ""){
-     navigation.replace("Home"); // Reemplaza Login con Home
-    }
   };
 
   const handleLogin = async () => {
     try {
       setError("");
-      
-      // Basic validation
+
+      // Basic validation checks
       if (!email || !password) {
         setError("Please fill in all fields");
         return;
       }
 
-      if (!validateEmail(email)) {
+      if (!isEmailValid(email)) {
         setError("Please enter a valid email address");
         return;
       }
@@ -39,12 +42,17 @@ const LoginScreen = () => {
         return;
       }
 
+      // Set loading to true
       setIsLoading(true);
-      // Here you would typically make an API call to authenticate
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulated API call
-      
+
+      // Simulated "API call" (1-second delay)
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
       console.log("Email:", email);
       console.log("Password:", password);
+
+      // 2) Si todo OK, navegamos a Home usando Expo Router
+      router.replace("/(tabs)/Home");
       
     } catch (err) {
       setError("An error occurred during login");
@@ -60,6 +68,8 @@ const LoginScreen = () => {
       style={stylesAuth.container}
     >
       <Text style={stylesAuth.title}>Welcome Back</Text>
+
+      {/* Email */}
       <TextInput
         label="Email"
         value={email}
@@ -72,6 +82,8 @@ const LoginScreen = () => {
         autoCapitalize="none"
         disabled={isLoading}
       />
+
+      {/* Password */}
       <TextInput
         label="Password"
         value={password}
@@ -83,13 +95,15 @@ const LoginScreen = () => {
         style={stylesAuth.input}
         disabled={isLoading}
       />
-      
-      {error ? (
+
+      {/* Error HelperText */}
+      {!!error && (
         <HelperText type="error" visible={!!error}>
           {error}
         </HelperText>
-      ) : null}
+      )}
 
+      {/* Submit Button */}
       <Button
         mode="contained"
         onPress={handleLogin}
@@ -99,11 +113,12 @@ const LoginScreen = () => {
         {isLoading ? <ActivityIndicator color="white" /> : "Login"}
       </Button>
 
-      <Text 
-        style={stylesAuth.link} 
-        onPress={() => !isLoading && navigation.navigate("Register")}
+      {/* Navigate to Register */}
+      <Text
+        style={stylesAuth.link}
+        onPress={() => !isLoading && router.push("/(auth)/Register")}
       >
-        Don't have an account? Register
+        Don&apos;t have an account? Register
       </Text>
     </KeyboardAvoidingView>
   );
