@@ -7,7 +7,7 @@ type RootStackParamList = {
   Home: undefined;
 };
 
-export default function HomeScreen() {
+export default function AccountScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
   const goToSettings = () => {

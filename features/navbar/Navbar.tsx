@@ -1,21 +1,32 @@
 import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Ionicons } from "@expo/vector-icons";
+import { ViewStyle } from "react-native";
+import HomeScreen from "../(tabs)/Home";
+import ClassesScreen from "../(tabs)/Classes";
+import ActivityScreen from "../(tabs)/Activity";
+import AccountScreen from "../(tabs)/Account";
 
 const Tab = createBottomTabNavigator();
-
-function HomeScreen() {
-  return null;
-}
 
 export default function NavBar() {
   return (
     <Tab.Navigator
+      initialRouteName="Home"
       screenOptions={{
         headerShown: false,
-        tabBarStyle: { backgroundColor: "#121212" },
+        tabBarStyle: {
+          backgroundColor: "#121212",
+          position: 'relative', 
+          bottom: 0,
+          left: 0,
+          right: 0,
+          elevation: 0,
+          height: 60,
+          paddingBottom: 10
+        },
         tabBarActiveTintColor: "white",
-        tabBarInactiveTintColor: "gray",
+        tabBarInactiveTintColor: "gray"
       }}
     >
       <Tab.Screen
@@ -28,17 +39,8 @@ export default function NavBar() {
         }}
       />
       <Tab.Screen
-        name="Services"
-        component={HomeScreen}
-        options={{
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="grid-outline" size={size} color={color} />
-          ),
-        }}
-      />
-      <Tab.Screen
-        name="Activity"
-        component={HomeScreen}
+        name="Activity" 
+        component={ActivityScreen}
         options={{
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="bookmarks-outline" size={size} color={color} />
@@ -47,7 +49,7 @@ export default function NavBar() {
       />
       <Tab.Screen
         name="Account"
-        component={HomeScreen}
+        component={AccountScreen}
         options={{
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="person-outline" size={size} color={color} />
