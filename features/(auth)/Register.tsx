@@ -4,6 +4,8 @@ import { TextInput, Button, Text, HelperText, Surface } from "react-native-paper
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import stylesAuth from "../../utils/styles/stylesAuth";
+import { auth } from "../../services/Firebase/configFireabase";
+import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 
 type AuthStackParamList = {
   Login: undefined;
@@ -47,11 +49,33 @@ const RegisterScreen = () => {
       }
 
       setIsLoading(true);
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      navigation.replace("Home");
       
-    } catch (err) {
-      setError("Ocurrió un error durante el registro");
+      // Crear usuario en Firebase
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      
+      // Actualizar el perfil del usuario con su nombre
+      if (userCredential.user) {
+        await updateProfile(userCredential.user, {
+          displayName: name
+        });
+        navigation.replace("Home");
+      }
+      
+    } catch (err: any) {
+      let errorMessage = "Ocurrió un error durante el registro";
+      
+      // Manejar errores específicos de Firebase
+      if (err.code === 'auth/email-already-in-use') {
+        errorMessage = "Este email ya está registrado";
+      } else if (err.code === 'auth/invalid-email') {
+        errorMessage = "Email inválido";
+      } else if (err.code === 'auth/operation-not-allowed') {
+        errorMessage = "Operación no permitida";
+      } else if (err.code === 'auth/weak-password') {
+        errorMessage = "La contraseña es muy débil";
+      }
+      
+      setError(errorMessage);
       console.error(err);
     } finally {
       setIsLoading(false);

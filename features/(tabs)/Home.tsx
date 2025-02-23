@@ -1,11 +1,10 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { View, Text, Image, StyleSheet, TouchableOpacity, ScrollView, SafeAreaView } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
-import { MaterialIcons, Ionicons } from "@expo/vector-icons";
-import NavBar from "../navbar/Navbar";
+import { MaterialIcons } from "@expo/vector-icons";
+import { auth } from "../../services/Firebase/configFireabase";
 
-// Definir el tipo de rutas disponibles
 type RootStackParamList = {
   Home: undefined;
   Horario: undefined;
@@ -17,10 +16,18 @@ type HomeScreenNavigationProp = StackNavigationProp<RootStackParamList, "Home">;
 
 export default function HomeScreen() {
   const navigation = useNavigation<HomeScreenNavigationProp>();
+  const [userName, setUserName] = useState("Usuario");
+
+  useEffect(() => {
+    const user = auth.currentUser;
+    if (user) {
+      setUserName(user.displayName || "Usuario");
+    }
+  }, []);
 
   return (
-    <SafeAreaView style={[styles.safeContainer]}>
-      <ScrollView 
+    <SafeAreaView style={styles.safeContainer}>
+      <ScrollView
         style={styles.container}
         contentContainerStyle={{ paddingBottom: 70 }}
       >
@@ -28,22 +35,22 @@ export default function HomeScreen() {
         <View style={styles.profileContainer}>
           <Image source={{ uri: "https://via.placeholder.com/80" }} style={styles.avatar} />
           <View>
-            <Text style={styles.name}>David Saito</Text>
+            <Text style={styles.name}>{userName}</Text>
             <Text style={styles.privacySubtitle}>Semestre 6</Text>
           </View>
         </View>
-        
+
         {/* Botones principales */}
         <View style={styles.mainButtonsContainer}>
-          <TouchableOpacity style={styles.mainButton} onPress={() => navigation.navigate("Horario")}>  
+          <TouchableOpacity style={styles.mainButton} onPress={() => navigation.navigate("Horario")}>
             <MaterialIcons name="schedule" size={30} color="white" />
             <Text style={styles.buttonText}>Horario</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.mainButton} onPress={() => navigation.navigate("Materias")}>  
+          <TouchableOpacity style={styles.mainButton} onPress={() => navigation.navigate("Materias")}>
             <MaterialIcons name="book" size={30} color="white" />
             <Text style={styles.buttonText}>Materias</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.mainButton} onPress={() => navigation.navigate("Tareas")}>  
+          <TouchableOpacity style={styles.mainButton} onPress={() => navigation.navigate("Tareas")}>
             <MaterialIcons name="assignment" size={30} color="white" />
             <Text style={styles.buttonText}>Tareas</Text>
           </TouchableOpacity>
@@ -57,9 +64,6 @@ export default function HomeScreen() {
             <Text style={styles.privacySubtitle}>Matemáticas - 10:00 AM - Aula 201</Text>
           </View>
         </View>
-
-        {/* <NavBar/>  cuando lo pongo aqui se me cae el navbar y no me deja ver el navbar ni carga nada*/}
-
       </ScrollView>
     </SafeAreaView>
   );
@@ -123,19 +127,5 @@ const styles = StyleSheet.create({
   privacySubtitle: {
     color: '#808080',
     marginLeft: 15
-  },
-  optionsContainer: {
-    backgroundColor: '#1E1E1E',
-    borderRadius: 10,
-    padding: 10
-  },
-  option: {
-    padding: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: '#2C2C2C'
-  },
-  optionText: {
-    color: 'white',
-    fontSize: 16
   }
 });
