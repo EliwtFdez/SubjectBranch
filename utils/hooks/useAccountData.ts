@@ -3,6 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { isValidSemestre, onlyDigits } from './helpers';
 import { auth, database } from '../../services/Firebase/configFireabase';
 import { ref, set, onValue } from 'firebase/database';
+import { signOut } from 'firebase/auth';
 
 interface FormData {
   nombre: string;
@@ -89,6 +90,30 @@ export function useAccountData() {
         }
     };
 
+    const handleLogout = async () => {
+        try {
+            // Limpiar AsyncStorage
+            await AsyncStorage.removeItem('@user_data');
+            
+            // Cerrar sesión en Firebase
+            await signOut(auth);
+            
+            // Restablecer el estado local
+            setFormData({
+                nombre: '',
+                matricula: '',
+                semestre: '',
+                carrera: ''
+            });
+            setNotificaciones(true);
+            
+            return true;
+        } catch (error) {
+            console.error('Error al cerrar sesión:', error);
+            return false;
+        }
+    };
+
     return {
         formData,
         setFormData,
@@ -96,6 +121,7 @@ export function useAccountData() {
         setNotificaciones,
         handleInputChange,
         handleSemestreChange,
-        handleSave
+        handleSave,
+        handleLogout
     };
 }

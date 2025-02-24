@@ -10,6 +10,7 @@ import { signOut, updateProfile } from "firebase/auth";
 type RootStackParamList = {
   Settings: undefined;
   Home: undefined;
+  Login: undefined;
 };
 
 type Props = NativeStackNavigationProp<RootStackParamList, 'Settings'>;
@@ -23,14 +24,19 @@ export default function AccountScreen() {
     setNotificaciones,
     handleInputChange,
     handleSemestreChange,
-    handleSave
+    handleSave,
+    handleLogout
   } = useAccountData();
 
   const handleCerrarSesion = async () => {
     try {
-      await signOut(auth);
-      Alert.alert('¡Hasta pronto!', 'Tu sesión se ha cerrado.');
-      navigation.navigate('Home');
+      const success = await handleLogout();
+      if (success) {
+        Alert.alert('¡Hasta pronto!', 'Tu sesión se ha cerrado.');
+        navigation.navigate('Login');
+      } else {
+        throw new Error('Error al cerrar sesión');
+      }
     } catch (error) {
       Alert.alert('Error', 'No se pudo cerrar la sesión');
     }
