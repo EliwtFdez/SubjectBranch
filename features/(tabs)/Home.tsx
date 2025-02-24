@@ -3,26 +3,58 @@ import { View, Text, Image, StyleSheet, TouchableOpacity, ScrollView, SafeAreaVi
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { MaterialIcons } from "@expo/vector-icons";
-import { auth } from "../../services/Firebase/configFireabase";
+import { auth, database } from "../../services/Firebase/configFireabase";
+import { ref, onValue } from "firebase/database";
 
 type RootStackParamList = {
   Home: undefined;
-  Horario: undefined;
   Materias: undefined;
+  Horario: undefined;
   Tareas: undefined;
 };
 
-type HomeScreenNavigationProp = StackNavigationProp<RootStackParamList, "Home">;
+type NavigationProp = StackNavigationProp<RootStackParamList>;
 
 export default function HomeScreen() {
-  const navigation = useNavigation<HomeScreenNavigationProp>();
+  const navigation = useNavigation<NavigationProp>();
   const [userName, setUserName] = useState("Usuario");
+  const [semestre, setSemestre] = useState("");
+  const [carrera, setCarrera] = useState("");
 
   useEffect(() => {
-    const user = auth.currentUser;
-    if (user) {
-      setUserName(user.displayName || "Usuario");
-    }
+    // Función para obtener datos del usuario
+    const getUserData = () => {
+      const user = auth.currentUser;
+      if (user) {
+        const userRef = ref(database, `users/${user.uid}`);
+        onValue(userRef, (snapshot) => {
+          const data = snapshot.val();
+          if (data) {
+            setUserName(data.nombre || user.displayName || "Usuario");
+            setSemestre(data.semestre || "");
+            setCarrera(data.carrera || "");
+          }
+        }, {
+          // Asegurarse de obtener siempre los datos más recientes
+          onlyOnce: false
+        });
+      }
+    };
+
+    // Suscribirse a los cambios de autenticación
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      if (user) {
+        getUserData();
+      } else {
+        // Resetear estados si no hay usuario
+        setUserName("Usuario");
+        setSemestre("");
+        setCarrera("");
+      }
+    });
+
+    // Limpiar suscripción al desmontar
+    return () => unsubscribe();
   }, []);
 
   return (
@@ -36,21 +68,34 @@ export default function HomeScreen() {
           <Image source={{ uri: "https://via.placeholder.com/80" }} style={styles.avatar} />
           <View>
             <Text style={styles.name}>{userName}</Text>
-            <Text style={styles.privacySubtitle}>Semestre 6</Text>
+            <Text style={styles.privacySubtitle}>Semestre {semestre}</Text>
+            <Text style={styles.privacySubtitle}>{carrera || "Sin carrera asignada"}</Text>
           </View>
         </View>
 
+
         {/* Botones principales */}
         <View style={styles.mainButtonsContainer}>
-          <TouchableOpacity style={styles.mainButton} onPress={() => navigation.navigate("Horario")}>
-            <MaterialIcons name="schedule" size={30} color="white" />
-            <Text style={styles.buttonText}>Horario</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.mainButton} onPress={() => navigation.navigate("Materias")}>
+          <TouchableOpacity 
+            style={styles.mainButton} 
+            onPress={() => navigation.navigate('Materias')}
+          >
             <MaterialIcons name="book" size={30} color="white" />
             <Text style={styles.buttonText}>Materias</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.mainButton} onPress={() => navigation.navigate("Tareas")}>
+
+          <TouchableOpacity 
+            style={styles.mainButton} 
+            onPress={() => navigation.navigate('Horario')}
+          >
+            <MaterialIcons name="schedule" size={30} color="white" />
+            <Text style={styles.buttonText}>Horario</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity 
+            style={styles.mainButton} 
+            onPress={() => navigation.navigate('Tareas')}
+          >
             <MaterialIcons name="assignment" size={30} color="white" />
             <Text style={styles.buttonText}>Tareas</Text>
           </TouchableOpacity>

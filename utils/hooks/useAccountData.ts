@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { isValidSemestre, onlyDigits } from './helpers';
+import { auth, database } from '../../services/Firebase/configFireabase';
+import { ref, set, onValue } from 'firebase/database';
 
 interface FormData {
   nombre: string;
@@ -21,16 +23,22 @@ export function useAccountData() {
     // Cargar datos al montar
     useEffect(() => {
         const loadData = async () => {
-        try {
-            const savedData = await AsyncStorage.getItem('@user_data');
-            if (savedData) {
-            const parsedData = JSON.parse(savedData);
-            setFormData(parsedData.formData || {});
-            setNotificaciones(parsedData.notificaciones ?? true);
+            const user = auth.currentUser;
+            if (user) {
+                const userRef = ref(database, `users/${user.uid}`);
+                onValue(userRef, (snapshot) => {
+                    const data = snapshot.val();
+                    if (data) {
+                        setFormData({
+                            nombre: data.nombre || '',
+                            matricula: data.matricula || '',
+                            semestre: data.semestre || '',
+                            carrera: data.carrera || ''
+                        });
+                        setNotificaciones(data.notificaciones ?? true);
+                    }
+                });
             }
-        } catch (error) {
-            console.log('Error al cargar datos:', error);
-        }
         };
 
         loadData();
@@ -41,28 +49,43 @@ export function useAccountData() {
         setFormData({ ...formData, [key]: value });
     };
 
-  // Manejo especial para semestre
+    // Manejo especial para semestre
     const handleSemestreChange = (text: string) => {
-    const numericValue = onlyDigits(text);
-    const semestre = parseInt(numericValue);
-    if (isValidSemestre(semestre)) {
-        setFormData({ ...formData, semestre: numericValue });
-    } else if (text === '') {
-        setFormData({ ...formData, semestre: '' });
-    }
+        const numericValue = onlyDigits(text);
+        const semestre = parseInt(numericValue);
+        if (isValidSemestre(semestre)) {
+            setFormData({ ...formData, semestre: numericValue });
+        } else if (text === '') {
+            setFormData({ ...formData, semestre: '' });
+        }
     };
 
     // Guardar datos
     const handleSave = async () => {
         try {
-        const dataToSave = {
-            formData,
-            notificaciones
-        };
-        await AsyncStorage.setItem('@user_data', JSON.stringify(dataToSave));
-        return true;
+            const user = auth.currentUser;
+            if (!user) {
+                throw new Error('No hay usuario autenticado');
+            }
+
+            const userRef = ref(database, `users/${user.uid}`);
+            await set(userRef, {
+                ...formData,
+                notificaciones,
+                updatedAt: new Date().toISOString()
+            });
+
+            // También guardar en AsyncStorage como respaldo
+            const dataToSave = {
+                formData,
+                notificaciones
+            };
+            await AsyncStorage.setItem('@user_data', JSON.stringify(dataToSave));
+            
+            return true;
         } catch (error) {
-        return false;
+            console.error('Error al guardar:', error);
+            return false;
         }
     };
 

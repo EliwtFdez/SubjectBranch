@@ -3,12 +3,13 @@ import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, SafeAr
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { useAccountData } from '../../utils/hooks/useAccountData'; 
+import { useAccountData } from '../../utils/hooks/useAccountData';
+import { auth } from '../../services/Firebase/configFireabase';
+import { signOut, updateProfile } from "firebase/auth";
 
 type RootStackParamList = {
   Settings: undefined;
   Home: undefined;
-  // Agrega aquí otras pantallas si las tienes, por ejemplo: Login: undefined;
 };
 
 type Props = NativeStackNavigationProp<RootStackParamList, 'Settings'>;
@@ -25,36 +26,46 @@ export default function AccountScreen() {
     handleSave
   } = useAccountData();
 
-  // Confirmar cierre de sesión
-  const handleCerrarSesion = () => {
-    Alert.alert(
-      'Cerrar Sesión',
-      '¿Estás seguro de que deseas cerrar sesión?',
-      [
-        { text: 'Cancelar', style: 'cancel' },
-        {
-          text: 'Sí',
-          onPress: async () => {
-            // Limpia AsyncStorage o maneja tu lógica de logout
-            // Por ejemplo:
-            // await AsyncStorage.removeItem('@user_data');
-            Alert.alert('Sesión cerrada', 'Has cerrado sesión exitosamente.');
-          }
-        }
-      ],
-      { cancelable: true }
-    );
+  const handleCerrarSesion = async () => {
+    try {
+      await signOut(auth);
+      Alert.alert('¡Hasta pronto!', 'Tu sesión se ha cerrado.');
+      navigation.navigate('Home');
+    } catch (error) {
+      Alert.alert('Error', 'No se pudo cerrar la sesión');
+    }
   };
 
-  // Guardar datos y dar feedback al usuario
   const onSavePress = async () => {
-    const success = await handleSave();
-    if (success) {
-      Alert.alert('¡Éxito!', 'Tus cambios se han guardado correctamente.', [
-        { text: 'OK', onPress: () => navigation.navigate('Home') }
-      ]);
-    } else {
-      Alert.alert('Error', 'No se pudieron guardar los cambios.');
+    try {
+      const userId = auth.currentUser?.uid;
+      if (!userId) {
+        Alert.alert('Error', 'No hay usuario autenticado');
+        return;
+      }
+
+      // Actualizar perfil de autenticación
+      if (auth.currentUser) {
+        await updateProfile(auth.currentUser, {
+          displayName: formData.nombre
+        });
+      }
+
+      const success = await handleSave();
+
+      if (success) {
+        Alert.alert('¡Listo!', 'Tus datos se guardaron correctamente.', [
+          {
+            text: 'OK',
+            onPress: () => navigation.navigate('Home')
+          }
+        ]);
+      } else {
+        throw new Error('Error al guardar');
+      }
+      
+    } catch (error) {
+      Alert.alert('Error', 'No pudimos guardar tus cambios. Inténtalo de nuevo.');
     }
   };
 
@@ -62,7 +73,6 @@ export default function AccountScreen() {
     <SafeAreaView style={styles.safeContainer}>
       <ScrollView style={styles.scrollContainer} contentContainerStyle={{ paddingBottom: 20 }}>
         
-        {/* Sección del encabezado con avatar */}
         <View style={styles.profileHeader}>
           <View style={styles.avatarContainer}>
             <Image
@@ -75,43 +85,39 @@ export default function AccountScreen() {
           </View>
         </View>
 
-        {/* Contenedor del formulario */}
         <View style={styles.formContainer}>
-          <Text style={styles.sectionTitle}>Información Personal</Text>
+          <Text style={styles.sectionTitle}>Tu Información</Text>
           
-          {/* Campo de nombre */}
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Nombre</Text>
+            <Text style={styles.label}>Nombre Completo</Text>
             <TextInput
               style={styles.input}
               value={formData.nombre}
               onChangeText={(text) => handleInputChange('nombre', text)}
-              placeholder="Cambia tu nombre"
+              placeholder="Escribe tu nombre completo"
               placeholderTextColor="#808080"
             />
           </View>
 
-          {/* Campo de matrícula */}
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Matrícula</Text>
+            <Text style={styles.label}>Tu Matrícula</Text>
             <TextInput
               style={styles.input}
               value={formData.matricula}
               onChangeText={(text) => handleInputChange('matricula', text)}
-              placeholder="Ingresa tu matrícula"
+              placeholder="Ej: A01234567"
               placeholderTextColor="#808080"
             />
           </View>
 
-          {/* Campo de semestre */}
           <View style={styles.semestreContainer}>
-            <Text style={styles.label}>Semestre</Text>
+            <Text style={styles.label}>¿En qué semestre vas?</Text>
             <View style={styles.semestreInputContainer}>
               <TextInput
                 style={styles.semestreInput}
                 value={formData.semestre}
                 onChangeText={handleSemestreChange}
-                placeholder="0-14"
+                placeholder="1-14"
                 placeholderTextColor="#808080"
                 keyboardType="numeric"
                 maxLength={2}
@@ -119,23 +125,21 @@ export default function AccountScreen() {
             </View>
           </View>
 
-          {/* Campo de carrera */}
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Carrera</Text>
+            <Text style={styles.label}>¿Qué estudias?</Text>
             <TextInput
               style={styles.input}
               value={formData.carrera}
               onChangeText={(text) => handleInputChange('carrera', text)}
-              placeholder="Ingresa tu carrera"
+              placeholder="Ej: Ingeniería en Sistemas"
               placeholderTextColor="#808080"
             />
           </View>
 
-          {/* Sección de Preferencias */}
-          <Text style={[styles.sectionTitle, { marginTop: 25 }]}>Preferencias</Text>
+          <Text style={[styles.sectionTitle, { marginTop: 25 }]}>Personalización</Text>
 
           <View style={styles.preferenceItem}>
-            <Text style={styles.preferenceText}>Notificaciones</Text>
+            <Text style={styles.preferenceText}>¿Quieres recibir notificaciones?</Text>
             <Switch
               value={notificaciones}
               onValueChange={setNotificaciones}
@@ -144,17 +148,15 @@ export default function AccountScreen() {
             />
           </View>
 
-          {/* Botón de guardar */}
           <TouchableOpacity style={styles.saveButton} onPress={onSavePress}>
-            <Text style={styles.saveButtonText}>Guardar Cambios</Text>
+            <Text style={styles.saveButtonText}>Guardar Mis Datos</Text>
           </TouchableOpacity>
 
-          {/* Botón de cerrar sesión */}
           <TouchableOpacity
             style={[styles.saveButton, styles.logoutButton]}
             onPress={handleCerrarSesion}
           >
-            <Text style={styles.saveButtonText}>Cerrar Sesión</Text>
+            <Text style={styles.saveButtonText}>Salir de Mi Cuenta</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -162,7 +164,6 @@ export default function AccountScreen() {
   );
 }
 
-// Estilos
 const styles = StyleSheet.create({
   safeContainer: {
     flex: 1,

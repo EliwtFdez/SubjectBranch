@@ -1,9 +1,7 @@
 import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Ionicons } from "@expo/vector-icons";
-import { ViewStyle } from "react-native";
 import HomeScreen from "../(tabs)/Home";
-import ClassesScreen from "../(tabs)/Classes";
 import ActivityScreen from "../(tabs)/Activity";
 import AccountScreen from "../(tabs)/Account";
 
