@@ -6,6 +6,7 @@ import RegisterScreen from "./features/(auth)/Register";
 import NavBar from "./features/navbar/Navbar";
 import Materias from "./features/(tabs)/Materias";
 import Horario from "./features/(tabs)/Horario";
+import Tareas from "./features/(tabs)/Tareas";
 
 const Stack = createStackNavigator();
 
@@ -18,6 +19,7 @@ export default function App() {
         <Stack.Screen name="Home" component={NavBar} />
         <Stack.Screen name="Materias" component={Materias} />
         <Stack.Screen name="Horario" component={Horario} />
+        <Stack.Screen name="Tareas" component={Tareas} />
       </Stack.Navigator>
     </NavigationContainer>
   );

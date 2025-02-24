@@ -1,13 +1,14 @@
-// Importación de dependencias necesarias
 import React, { useState } from 'react';
 import { View, ScrollView, StyleSheet, SafeAreaView, TouchableOpacity } from 'react-native';
 import { Text, Surface } from 'react-native-paper';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 
+
 const Horario = () => {
   const navigation = useNavigation();
   const [diaSeleccionado, setDiaSeleccionado] = useState('Lunes');
+  const [selectedDate, setSelectedDate] = useState('');
   
   const horarios = {
     Lunes: [
@@ -116,6 +117,11 @@ const styles = StyleSheet.create({
     flex: 1,
     textAlign: 'center',
     marginRight: 43,
+  },
+  calendar: {
+    marginBottom: 20,
+    borderRadius: 10,
+    elevation: 4,
   },
   diasHeader: {
     flexDirection: 'row',
