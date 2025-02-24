@@ -63,16 +63,19 @@ export default function HomeScreen() {
         style={styles.container}
         contentContainerStyle={{ paddingBottom: 70 }}
       >
+
         {/* Perfil del Estudiante */}
-        <View style={styles.profileContainer}>
-          <Image source={{ uri: "https://via.placeholder.com/80" }} style={styles.avatar} />
-          <View>
-            <Text style={styles.name}>{userName}</Text>
-            <Text style={styles.privacySubtitle}>Semestre {semestre}</Text>
-            <Text style={styles.privacySubtitle}>{carrera || "Sin carrera asignada"}</Text>
+        <View style={styles.profileCard}>
+          <Image 
+            source={{ uri: "https://via.placeholder.com/80" }} 
+            style={styles.profileAvatar} 
+          />
+          <View style={styles.profileInfo}>
+            <Text style={styles.profileName}>{userName}</Text>
+            <Text style={styles.profileDetail}>Semestre {semestre}</Text>
+            <Text style={styles.profileDetail}>{carrera || "Sin carrera asignada"}</Text>
           </View>
         </View>
-
 
         {/* Botones principales */}
         <View style={styles.mainButtonsContainer}>
@@ -101,6 +104,9 @@ export default function HomeScreen() {
           </TouchableOpacity>
         </View>
 
+       {/* Línea divisoria */}
+        <View style={styles.divider} />
+
         {/* Próxima Clase */}
         <View style={styles.privacyContainer}>
           <MaterialIcons name="access-time" size={30} color="white" />
@@ -123,21 +129,41 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20
   },
-  profileContainer: {
+  profileCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 30
+    backgroundColor: '#1E1E1E',
+    padding: 15,
+    borderRadius: 10,
+    marginBottom: 20
   },
-  avatar: {
+  profileAvatar: {
     width: 80,
     height: 80,
     borderRadius: 40,
-    marginRight: 15
+    marginRight: 15,
+    borderWidth: 2,
+    borderColor: '#333'
   },
-  name: {
+  profileInfo: {
+    flex: 1,
+    justifyContent: 'center'
+  },
+  profileName: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: 'white'
+    color: '#FFF',
+    marginBottom: 5
+  },
+  profileDetail: {
+    fontSize: 16,
+    color: '#AAA',
+    marginBottom: 3
+  },
+  divider: {
+    height: 1,
+    backgroundColor: '#333333',
+    marginBottom: 20
   },
   mainButtonsContainer: {
     flexDirection: 'row',
