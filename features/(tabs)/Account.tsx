@@ -50,25 +50,41 @@ export default function AccountScreen() {
         return;
       }
 
-      // Actualizar perfil de autenticación
-      if (auth.currentUser) {
-        await updateProfile(auth.currentUser, {
-          displayName: formData.nombre
-        });
-      }
-
-      const success = await handleSave();
-
-      if (success) {
-        Alert.alert('¡Listo!', 'Tus datos se guardaron correctamente.', [
+      // Mostrar advertencia antes de guardar
+      Alert.alert(
+        '⚠️ Advertencia',
+        'Al modificar tus datos se eliminarán tus materias y registros. ¿Deseas continuar?',
+        [
           {
-            text: 'OK',
-            onPress: () => navigation.navigate('Home')
+            text: 'Cancelar',
+            style: 'cancel'
+          },
+          {
+            text: 'Continuar',
+            onPress: async () => {
+              // Actualizar perfil de autenticación
+              if (auth.currentUser) {
+                await updateProfile(auth.currentUser, {
+                  displayName: formData.nombre
+                });
+              }
+
+              const success = await handleSave();
+
+              if (success) {
+                Alert.alert('¡Listo!', 'Tus datos se guardaron correctamente.', [
+                  {
+                    text: 'OK',
+                    onPress: () => navigation.navigate('Home')
+                  }
+                ]);
+              } else {
+                throw new Error('Error al guardar');
+              }
+            }
           }
-        ]);
-      } else {
-        throw new Error('Error al guardar');
-      }
+        ]
+      );
       
     } catch (error) {
       Alert.alert('Error', 'No pudimos guardar tus cambios. Inténtalo de nuevo.');
