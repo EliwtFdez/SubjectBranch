@@ -58,7 +58,6 @@ const LoginScreen = () => {
 
       setIsLoading(true);
 
-      // Autenticación con Firebase
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       if (userCredential.user) {
         navigation.replace("Home");
@@ -67,7 +66,6 @@ const LoginScreen = () => {
     } catch (err: any) {
       let errorMessage = "Ocurrió un error durante el inicio de sesión";
 
-      // Manejar errores específicos de Firebase
       if (err.code === 'auth/user-not-found') {
         errorMessage = "No existe una cuenta con este email";
       } else if (err.code === 'auth/wrong-password') {
@@ -104,9 +102,11 @@ const LoginScreen = () => {
             keyboardType="email-address"
             autoCapitalize="none"
             disabled={isLoading}
-            left={<TextInput.Icon icon="email" />}
-            mode="outlined"
-            theme={{ colors: { text: 'white', placeholder: 'white' } }}
+            left={<TextInput.Icon icon="email" color="white" />}
+            mode="flat"
+            underlineColor="transparent"
+            activeUnderlineColor="white"
+            theme={{ colors: { text: 'white', placeholder: 'white', primary: 'white' } }}
             textColor="white"
           />
 
@@ -120,15 +120,18 @@ const LoginScreen = () => {
             secureTextEntry={!showPassword}
             style={styles.input}
             disabled={isLoading}
-            left={<TextInput.Icon icon="lock" />}
+            left={<TextInput.Icon icon="lock" color="white" />}
             right={
               <TextInput.Icon 
                 icon={showPassword ? "eye-off" : "eye"} 
                 onPress={() => setShowPassword(!showPassword)}
+                color="white"
               />
             }
-            mode="outlined"
-            theme={{ colors: { text: 'white', placeholder: 'white' } }}
+            mode="flat"
+            underlineColor="transparent"
+            activeUnderlineColor="white"
+            theme={{ colors: { text: 'white', placeholder: 'white', primary: 'white' } }}
             textColor="white"
           />
 
@@ -190,41 +193,43 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: "bold",
-    color: "#F5F5F5",
+    color: "#FFFFFF",
     textAlign: "center",
     marginBottom: 5,
   },
   subtitle: {
     fontSize: 16,
-    color: "#E0E0E0",
+    color: "#CCCCCC",
     textAlign: "center",
     marginBottom: 20,
   },
   input: {
     marginBottom: 16,
-    backgroundColor: "#3A3A3A",
-    borderRadius: 8,
+    backgroundColor: "transparent", // Fondo transparente
+    borderBottomColor: "white", // Solo una línea blanca debajo
+    borderBottomWidth: 1,
+    color: "white",
   },
   button: {
     marginTop: 10,
     borderRadius: 8,
-    backgroundColor: "#007AFF",
+    backgroundColor: "#007AFF", // Azul
   },
   buttonContent: {
     height: 50,
   },
   errorText: {
     textAlign: "center",
-    color: "#ff6b6b",
+    color: "#FF6B6B",
     marginBottom: 10,
   },
   registerText: {
     textAlign: "center",
-    color: "#ddd",
+    color: "#FFFFFF",
     marginTop: 15,
   },
   registerLink: {
-    color: "#007AFF",
+    color: "#FFFFFF",
     fontWeight: "bold",
   },
 });
