@@ -3,8 +3,8 @@ import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, SafeAr
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { useAccountData } from '../../utils/hooks/useAccountData';
-import { auth } from '../../services/Firebase/configFireabase';
+import { useAccountData } from '../../../utils/hooks/useAccountData';
+import { auth } from '../../../services/Firebase/configFireabase';
 import { signOut, updateProfile } from "firebase/auth";
 
 type RootStackParamList = {

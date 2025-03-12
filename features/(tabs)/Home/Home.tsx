@@ -3,8 +3,8 @@ import { View, Text, Image, StyleSheet, TouchableOpacity, ScrollView, SafeAreaVi
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { MaterialIcons } from "@expo/vector-icons";
-import { auth, database } from "../../services/Firebase/configFireabase";
 import { ref, onValue } from "firebase/database";
+import { auth, database } from "../../../services/Firebase/configFireabase";
 
 type RootStackParamList = {
   Home: undefined;

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Modal, TouchableOpacity, Text, StyleSheet, View, TextInput, Alert } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-import { useMateriasData } from '../../utils/hooks/useMateriasData';
+import { useMateriasData } from '../../../../utils/hooks/useMateriasData';
 
 export default function AddButton({ visible, onClose }: { visible: boolean, onClose: () => void }) {
   const { addMateria } = useMateriasData();

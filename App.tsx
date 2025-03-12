@@ -4,9 +4,9 @@ import { createStackNavigator } from "@react-navigation/stack";
 import LoginScreen from "./features/(auth)/Login";
 import RegisterScreen from "./features/(auth)/Register"; 
 import NavBar from "./features/navbar/Navbar";
-import Materias from "./features/(tabs)/Materias";
-import Horario from "./features/(tabs)/Horario";
-import Tareas from "./features/(tabs)/Tareas";
+import Materias from "./features/(tabs)/Home/Components/Materias";
+import Horario from "./features/(tabs)/Home/Components/Horario";
+import Tareas from "./features/(tabs)/Home/Components/Tareas";
 
 const Stack = createStackNavigator();
 

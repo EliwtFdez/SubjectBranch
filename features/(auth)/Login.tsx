@@ -1,9 +1,18 @@
 import React, { useState } from "react";
-import {KeyboardAvoidingView,Platform,ActivityIndicator,View,Image,StyleSheet} from "react-native";
+import {
+  KeyboardAvoidingView,
+  Platform,
+  ActivityIndicator,
+  View,
+  Image,
+  StyleSheet,
+  TouchableOpacity,
+  StatusBar
+} from "react-native";
 import { TextInput, Button, Text, HelperText, Surface } from "react-native-paper";
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
-import stylesAuth from "../../utils/styles/stylesAuth";
+import { LinearGradient } from "expo-linear-gradient";
 import { auth } from "../../services/Firebase/configFireabase";
 import { signInWithEmailAndPassword } from "firebase/auth";
 
@@ -48,16 +57,16 @@ const LoginScreen = () => {
       }
 
       setIsLoading(true);
-      
+
       // Autenticación con Firebase
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       if (userCredential.user) {
         navigation.replace("Home");
       }
-      
+
     } catch (err: any) {
       let errorMessage = "Ocurrió un error durante el inicio de sesión";
-      
+
       // Manejar errores específicos de Firebase
       if (err.code === 'auth/user-not-found') {
         errorMessage = "No existe una cuenta con este email";
@@ -66,7 +75,7 @@ const LoginScreen = () => {
       } else if (err.code === 'auth/invalid-email') {
         errorMessage = "Email inválido";
       }
-      
+
       setError(errorMessage);
       console.error(err);
     } finally {
@@ -75,161 +84,149 @@ const LoginScreen = () => {
   };
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      style={[stylesAuth.container, styles.container]}
-    >
-      <Surface style={styles.loginCard}>
-        <Image 
-          source={require('../../assets/images/favicon.png')}
-          style={styles.logo}
-          resizeMode="contain"
-        />
-        
-        <Text style={styles.title}>¡Bienvenido de vuelta!</Text>
-        <Text style={styles.subtitle}>Inicia sesión para continuar</Text>
+    <LinearGradient colors={["#1E293B", "#243B55"]} style={styles.background}>
+      <StatusBar barStyle="light-content" />
+      <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles.container}>
+        <Surface style={styles.loginCard} elevation={5}>
+          <Image source={require('../../assets/images/App.png')} style={styles.logo} resizeMode="contain" />
 
-        <TextInput
-          label="Email"
-          value={email}
-          onChangeText={(text) => {
-            setEmail(text);
-            setError("");
-          }}
-          style={styles.input}
-          keyboardType="email-address"
-          autoCapitalize="none"
-          disabled={isLoading}
-          left={<TextInput.Icon icon="email" />}
-          mode="outlined"
-          theme={{ colors: { text: 'white', placeholder: 'white' } }}
-          textColor="white"
-        />
+          <Text style={styles.title}>¡Bienvenido de vuelta!</Text>
+          <Text style={styles.subtitle}>Inicia sesión para continuar</Text>
 
-        <TextInput
-          label="Contraseña"
-          value={password}
-          onChangeText={(text) => {
-            setPassword(text);
-            setError("");
-          }}
-          secureTextEntry={!showPassword}
-          style={styles.input}
-          disabled={isLoading}
-          left={<TextInput.Icon icon="lock" />}
-          right={
-            <TextInput.Icon 
-              icon={showPassword ? "eye-off" : "eye"} 
-              onPress={() => setShowPassword(!showPassword)}
-            />
-          }
-          mode="outlined"
-          theme={{ colors: { text: 'white', placeholder: 'white' } }}
-          textColor="white"
-        />
+          <TextInput
+            label="Email"
+            value={email}
+            onChangeText={(text) => {
+              setEmail(text);
+              setError("");
+            }}
+            style={styles.input}
+            keyboardType="email-address"
+            autoCapitalize="none"
+            disabled={isLoading}
+            left={<TextInput.Icon icon="email" />}
+            mode="outlined"
+            theme={{ colors: { text: 'white', placeholder: 'white' } }}
+            textColor="white"
+          />
 
-        {!!error && (
-          <HelperText type="error" visible={!!error} style={styles.errorText}>
-            {error}
-          </HelperText>
-        )}
+          <TextInput
+            label="Contraseña"
+            value={password}
+            onChangeText={(text) => {
+              setPassword(text);
+              setError("");
+            }}
+            secureTextEntry={!showPassword}
+            style={styles.input}
+            disabled={isLoading}
+            left={<TextInput.Icon icon="lock" />}
+            right={
+              <TextInput.Icon 
+                icon={showPassword ? "eye-off" : "eye"} 
+                onPress={() => setShowPassword(!showPassword)}
+              />
+            }
+            mode="outlined"
+            theme={{ colors: { text: 'white', placeholder: 'white' } }}
+            textColor="white"
+          />
 
-        <Button
-          mode="contained"
-          onPress={handleLogin}
-          style={styles.button}
-          disabled={isLoading}
-          contentStyle={styles.buttonContent}
-        >
-          {isLoading ? <ActivityIndicator color="white" /> : "Iniciar Sesión"}
-        </Button>
+          {!!error && (
+            <HelperText type="error" visible={!!error} style={styles.errorText}>
+              {error}
+            </HelperText>
+          )}
 
-        <View style={styles.divider}>
-          <View style={styles.line} />
-          <Text style={styles.orText}>O</Text>
-          <View style={styles.line} />
-        </View>
+          <Button
+            mode="contained"
+            onPress={handleLogin}
+            style={styles.button}
+            disabled={isLoading}
+            contentStyle={styles.buttonContent}
+          >
+            {isLoading ? <ActivityIndicator color="white" /> : "Iniciar Sesión"}
+          </Button>
 
-        <Text
-          style={styles.registerText}
-          onPress={() => !isLoading && navigation.navigate("Register")}
-        >
-          ¿No tienes una cuenta? <Text style={styles.registerLink}>Regístrate</Text>
-        </Text>
-      </Surface>
-    </KeyboardAvoidingView>
+          <TouchableOpacity onPress={() => navigation.navigate("Register")}>
+            <Text style={styles.registerText}>
+              ¿No tienes una cuenta? <Text style={styles.registerLink}>Regístrate</Text>
+            </Text>
+          </TouchableOpacity>
+        </Surface>
+      </KeyboardAvoidingView>
+    </LinearGradient>
   );
 };
 
 const styles = StyleSheet.create({
+  background: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
   container: {
-    backgroundColor: '#121212',
-    padding: 20
+    width: "100%",
+    paddingHorizontal: 20,
   },
   loginCard: {
     padding: 20,
     borderRadius: 15,
-    backgroundColor: '#1E1E1E',
-    elevation: 4,
-    width: '100%'
+    backgroundColor: "rgba(30, 30, 30, 0.95)",
+    width: "100%",
+    maxWidth: 400,
+    alignSelf: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
   },
   logo: {
-    width: 120,
-    height: 120,
-    alignSelf: 'center',
-    marginBottom: 20
+    width: 100,
+    height: 100,
+    alignSelf: "center",
+    marginBottom: 20,
   },
   title: {
     fontSize: 24,
-    fontWeight: 'bold',
-    color: 'white',
-    textAlign: 'center',
-    marginBottom: 8
+    fontWeight: "bold",
+    color: "#F5F5F5",
+    textAlign: "center",
+    marginBottom: 5,
   },
   subtitle: {
     fontSize: 16,
-    color: '#888',
-    textAlign: 'center',
-    marginBottom: 30
+    color: "#E0E0E0",
+    textAlign: "center",
+    marginBottom: 20,
   },
   input: {
     marginBottom: 16,
-    backgroundColor: '#2C2C2C'
+    backgroundColor: "#3A3A3A",
+    borderRadius: 8,
   },
   button: {
     marginTop: 10,
     borderRadius: 8,
-    backgroundColor: '#007AFF'
+    backgroundColor: "#007AFF",
   },
   buttonContent: {
-    height: 48
+    height: 50,
   },
   errorText: {
-    textAlign: 'center',
-    marginBottom: 10
-  },
-  divider: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginVertical: 20
-  },
-  line: {
-    flex: 1,
-    height: 1,
-    backgroundColor: '#333'
-  },
-  orText: {
-    color: '#888',
-    paddingHorizontal: 10
+    textAlign: "center",
+    color: "#ff6b6b",
+    marginBottom: 10,
   },
   registerText: {
-    textAlign: 'center',
-    color: '#888'
+    textAlign: "center",
+    color: "#ddd",
+    marginTop: 15,
   },
   registerLink: {
-    color: '#007AFF',
-    fontWeight: 'bold'
-  }
+    color: "#007AFF",
+    fontWeight: "bold",
+  },
 });
 
 export default LoginScreen;

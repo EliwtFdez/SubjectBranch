@@ -4,13 +4,22 @@ import { Text, Surface } from 'react-native-paper';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 
+type Clase = {
+  hora: string;
+  materia: string;
+  aula: string;
+}
+
+type Horarios = {
+  [key in 'Lunes' | 'Martes' | 'Miércoles' | 'Jueves' | 'Viernes' | 'Sábado' | 'Domingo']: Clase[];
+}
 
 const Horario = () => {
   const navigation = useNavigation();
-  const [diaSeleccionado, setDiaSeleccionado] = useState('Lunes');
+  const [diaSeleccionado, setDiaSeleccionado] = useState<keyof Horarios>('Lunes');
   const [selectedDate, setSelectedDate] = useState('');
   
-  const horarios = {
+  const horarios: Horarios = {
     Lunes: [
       { hora: '7:00 - 8:30', materia: 'Matemáticas', aula: 'A101' },
       { hora: '9:00 - 10:30', materia: 'Física', aula: 'B203' },
@@ -35,7 +44,7 @@ const Horario = () => {
     Domingo: []
   };
 
-  const diasCompletos = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+  const diasCompletos = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'] as const;
   const diasAbreviados = ['L', 'M', 'Mi', 'J', 'V', 'S', 'D'];
 
   return (
@@ -79,7 +88,7 @@ const Horario = () => {
           {horarios[diaSeleccionado].length > 0 ? (
             horarios[diaSeleccionado].map((clase, index) => (
               <View key={index} style={styles.claseContainer}>
-                <View style={styles.claseInfo}>
+                <View style={styles.claseContainer}>
                   <Text style={styles.hora}>{clase.hora}</Text>
                   <Text style={styles.materia}>{clase.materia}</Text>
                   <Text style={styles.aula}>{clase.aula}</Text>
