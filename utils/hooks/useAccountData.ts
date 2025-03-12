@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { isValidSemestre, onlyDigits } from './helpers';
-import { auth, database } from '../../services/Firebase/configFireabase';
+import { auth, database } from '../../services/configFireabase';
 import { ref, set, onValue } from 'firebase/database';
 import { signOut } from 'firebase/auth';
 

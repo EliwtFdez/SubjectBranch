@@ -4,7 +4,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useAccountData } from '../../../utils/hooks/useAccountData';
-import { auth } from '../../../services/Firebase/configFireabase';
+import { auth } from '../../../services/configFireabase';
 import { signOut, updateProfile } from "firebase/auth";
 
 type RootStackParamList = {

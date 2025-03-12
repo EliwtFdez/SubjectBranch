@@ -1,12 +1,11 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, ScrollView, ActivityIndicator, Alert } from 'react-native';
+import React, { useState, useRef, useEffect } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, ScrollView, ActivityIndicator, Alert, Animated } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import AddButton from './AddButtonMateria';
 import { useMateriasData } from '../../../../utils/hooks/useMateriasData';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { List, Surface, IconButton } from 'react-native-paper';
 import Swipeable from 'react-native-gesture-handler/Swipeable';
+import { List, Surface, IconButton } from 'react-native-paper';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 type RootStackParamList = {
@@ -16,28 +15,40 @@ type RootStackParamList = {
 export default function Materias() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const [showModal, setShowModal] = useState(false);
-
-  // Hook personalizado que maneja la lógica de datos de materias
   const { materias, loading, error, deleteMateria } = useMateriasData();
 
+  // Estado animado inicializado correctamente
+  const animatedValues = useRef<{ [key: string]: Animated.Value }>({}).current;
+
+  // Sincronizar animatedValues con materias
+  useEffect(() => {
+    materias.forEach((materia) => {
+      if (!animatedValues[materia.id]) {
+        animatedValues[materia.id] = new Animated.Value(1);
+      }
+    });
+  }, [materias]);
+
   /**
-   * Renderiza los botones de acción (editar/eliminar) que aparecen al deslizar una materia
+   * Maneja la eliminación con animación
    * @param materiaId - ID único de la materia
    */
+  const handleDelete = (materiaId: string) => {
+    Animated.timing(animatedValues[materiaId], {
+      toValue: 0, // Se desvanece
+      duration: 300, // Duración de la animación
+      useNativeDriver: true,
+    }).start(() => deleteMateria(materiaId)); // Elimina después de la animación
+  };
+
   const renderRightActions = (materiaId: string) => {
     return (
       <View style={styles.actionContainer}>
         <TouchableOpacity 
           style={styles.editAction} 
-          onPress={() => {
-            navigation.navigate('EditarMateria', { materiaId });
-          }}
+          onPress={() => navigation.navigate('EditarMateria', { materiaId })}
         >
-          <IconButton
-            icon="pencil"
-            iconColor="white"
-            size={24}
-          />
+          <IconButton icon="pencil" iconColor="white" size={24} />
         </TouchableOpacity>
         <TouchableOpacity 
           style={styles.deleteAction} 
@@ -46,30 +57,18 @@ export default function Materias() {
               'Confirmar eliminación',
               '¿Está seguro que desea eliminar esta materia?',
               [
-                {
-                  text: 'Cancelar',
-                  style: 'cancel'
-                },
-                {
-                  text: 'Eliminar',
-                  onPress: () => deleteMateria(materiaId),
-                  style: 'destructive'
-                }
+                { text: 'Cancelar', style: 'cancel' },
+                { text: 'Eliminar', onPress: () => handleDelete(materiaId), style: 'destructive' }
               ]
             );
           }}
         >
-          <IconButton
-            icon="delete"
-            iconColor="white" 
-            size={24}
-          />
+          <IconButton icon="delete" iconColor="white" size={24} />
         </TouchableOpacity>
       </View>
     );
   };
 
-  // Muestra un indicador de carga mientras se obtienen los datos
   if (loading) {
     return (
       <SafeAreaView style={styles.safeContainer}>
@@ -81,7 +80,6 @@ export default function Materias() {
     );
   }
 
-  // Muestra mensaje de error si algo falla
   if (error) {
     return (
       <SafeAreaView style={styles.safeContainer}>
@@ -95,37 +93,25 @@ export default function Materias() {
   return (
     <SafeAreaView style={styles.safeContainer}>
       <ScrollView style={styles.container}>
-        {/* Cabecera con botón de retroceso y título */}
         <View style={styles.header}>
-          <TouchableOpacity 
-            style={styles.backButton}
-            onPress={() => navigation.goBack()}
-          >
+          <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
             <MaterialIcons name="arrow-back" size={28} color="white" />
           </TouchableOpacity>
           <Text style={styles.title}>Mis Materias</Text>
         </View>
 
-        {/* Botones para agregar materia y foto */}
         <View style={styles.buttonContainer}>
-          <TouchableOpacity 
-            style={[styles.addButton, styles.leftButton]}
-            onPress={() => setShowModal(true)}
-          >
+          <TouchableOpacity style={[styles.addButton, styles.leftButton]} onPress={() => setShowModal(true)}>
             <MaterialIcons name="add" size={24} color="white" />
             <Text style={styles.buttonText}>Agregar Materia</Text>
           </TouchableOpacity>
           
-          <TouchableOpacity 
-            style={[styles.addButton, styles.rightButton]}
-            onPress={() => {/* Lógica para foto */}}
-          >
+          <TouchableOpacity style={[styles.addButton, styles.rightButton]} onPress={() => {}}>
             <MaterialIcons name="photo-camera" size={24} color="white" />
             <Text style={styles.buttonText}>Foto Materias</Text>
           </TouchableOpacity>
         </View>
 
-        {/* Renderizado condicional: mensaje si no hay materias o lista de materias */}
         {materias.length === 0 ? (
           <View style={styles.scheduleContainer}>
             <Text style={styles.emptyText}>No hay materias agregadas</Text>
@@ -138,32 +124,38 @@ export default function Materias() {
                 renderRightActions={() => renderRightActions(materia.id || '')}
                 overshootRight={false}
               >
-                <Surface style={styles.surface} elevation={2}>
-                  <List.Item
-                    title={<Text style={styles.materiaNombre}>{materia.nombre}</Text>}
-                    description={
-                      <View>
-                        <Text style={styles.materiaDetalle}>Profesor: {materia.profesor}</Text>
-                        <Text style={styles.materiaDetalle}>Aula: {materia.aula}</Text>
-                        <Text style={styles.materiaDetalle}>
-                          Horario: {materia.horaInicio}:{materia.minutoInicio} {materia.periodoInicio} - 
-                          {materia.horaFin}:{materia.minutoFin} {materia.periodoFin}
-                        </Text>
-                      </View>
+                <Animated.View
+                  style={[
+                    styles.animatedContainer,
+                    { 
+                      opacity: animatedValues[materia.id] || 1, // Manejar inicialización
+                      transform: [{ scale: animatedValues[materia.id] || 1 }] // Efecto de escala
                     }
-                    left={props => <List.Icon {...props} icon="notebook" color="white" />}
-                  />
-                </Surface>
+                  ]}
+                >
+                  <Surface style={styles.surface} elevation={2}>
+                    <List.Item
+                      title={<Text style={styles.materiaNombre}>{materia.nombre}</Text>}
+                      description={
+                        <View>
+                          <Text style={styles.materiaDetalle}>Profesor: {materia.profesor}</Text>
+                          <Text style={styles.materiaDetalle}>Aula: {materia.aula}</Text>
+                          <Text style={styles.materiaDetalle}>
+                            Horario: {materia.horaInicio}:{materia.minutoInicio} {materia.periodoInicio} - 
+                            {materia.horaFin}:{materia.minutoFin} {materia.periodoFin}
+                          </Text>
+                        </View>
+                      }
+                      left={props => <List.Icon {...props} icon="notebook" color="white" />}
+                    />
+                  </Surface>
+                </Animated.View>
               </Swipeable>
             ))}
           </View>
         )}
 
-        {/* Modal para agregar nueva materia */}
-        <AddButton 
-          visible={showModal}
-          onClose={() => setShowModal(false)}
-        />
+        <AddButton visible={showModal} onClose={() => setShowModal(false)} />
       </ScrollView>
     </SafeAreaView>
   );
@@ -172,29 +164,46 @@ export default function Materias() {
 const styles = StyleSheet.create({
   safeContainer: {
     flex: 1,
-    backgroundColor: '#121212'
+    backgroundColor: '#121212',
   },
   container: {
     flex: 1,
-    padding: 20
+    padding: 20,
+  },
+  animatedContainer: {
+    overflow: 'hidden',
+  },
+  centerContent: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingText: {
+    color: '#BB86FC',
+    fontSize: 16,
+    marginTop: 10,
+  },
+  errorText: {
+    color: '#FF4C4C',
+    fontSize: 16,
+    textAlign: 'center',
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 30
+    marginBottom: 30,
   },
   backButton: {
-    marginRight: 15
+    marginRight: 15,
   },
   title: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: 'white'
+    color: 'white',
   },
   buttonContainer: {
-    marginBottom: 20,
     flexDirection: 'row',
-    gap: 10
+    justifyContent: 'space-between',
+    marginBottom: 20,
   },
   addButton: {
     flex: 1,
@@ -202,66 +211,51 @@ const styles = StyleSheet.create({
     padding: 15,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center'
+    justifyContent: 'center',
   },
   leftButton: {
     borderTopLeftRadius: 10,
-    borderBottomLeftRadius: 10
+    borderBottomLeftRadius: 10,
   },
   rightButton: {
     borderTopRightRadius: 10,
-    borderBottomRightRadius: 10
+    borderBottomRightRadius: 10,
   },
   buttonText: {
     color: 'white',
     fontSize: 16,
-    marginLeft: 10
+    marginLeft: 10,
   },
   scheduleContainer: {
-    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#1E1E1E',
     padding: 20,
     borderRadius: 10,
-    minHeight: 200
+    minHeight: 200,
+  },
+  emptyText: {
+    color: '#808080',
+    fontSize: 16,
   },
   materiasGrid: {
-    gap: 15
+    gap: 15,
   },
   surface: {
     marginBottom: 8,
     borderRadius: 8,
     backgroundColor: '#1E1E1E',
-    width: '100%'
+    width: '100%',
   },
   materiaNombre: {
     color: 'white',
     fontSize: 18,
-    fontWeight: 'bold'
+    fontWeight: 'bold',
   },
   materiaDetalle: {
     color: '#808080',
     fontSize: 14,
-    marginBottom: 5
-  },
-  emptyText: {
-    color: '#808080',
-    fontSize: 16
-  },
-  centerContent: {
-    justifyContent: 'center',
-    alignItems: 'center'
-  },
-  loadingText: {
-    color: '#808080',
-    fontSize: 16,
-    marginTop: 10
-  },
-  errorText: {
-    color: '#ff6b6b',
-    fontSize: 16,
-    textAlign: 'center'
+    marginBottom: 5,
   },
   actionContainer: {
     flexDirection: 'row',
@@ -272,15 +266,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     width: 50,
-    borderTopLeftRadius: 8,
-    borderBottomLeftRadius: 8
   },
   deleteAction: {
     backgroundColor: '#FF0000',
     justifyContent: 'center',
     alignItems: 'center',
     width: 50,
-    borderTopRightRadius: 8,
-    borderBottomRightRadius: 8
-  }
+  },
 });

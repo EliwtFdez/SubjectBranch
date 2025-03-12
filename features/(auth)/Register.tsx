@@ -13,7 +13,7 @@ import { TextInput, Button, Text, HelperText, Surface } from "react-native-paper
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { LinearGradient } from "expo-linear-gradient";
-import { auth } from "../../services/Firebase/configFireabase";
+import { auth } from "../../services/configFireabase";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 
 type AuthStackParamList = {

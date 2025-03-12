@@ -4,7 +4,7 @@ import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { MaterialIcons } from "@expo/vector-icons";
 import { ref, onValue } from "firebase/database";
-import { auth, database } from "../../../services/Firebase/configFireabase";
+import { auth, database } from "../../../services/configFireabase";
 
 type RootStackParamList = {
   Home: undefined;
